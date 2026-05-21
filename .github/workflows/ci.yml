@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint-and-typecheck:
-    name: Lint & Type Check
+    name: lint-and-typecheck
     runs-on: ubuntu-latest
 
     steps:

@@ -23,7 +23,14 @@ export async function authRoutes(app: FastifyInstance) {
             data: {
               type: 'object',
               properties: {
-                user: { type: 'object' },
+                user: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  email: { type: 'string' },
+                  role: { type: 'string' },
+                },
+              },
                 accessToken: { type: 'string' },
                 refreshToken: { type: 'string' },
               },
