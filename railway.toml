@@ -1,0 +1,11 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+# Sync DB schema on every deploy, then start the server.
+# prisma generate runs automatically via the postinstall npm hook.
+startCommand = "npx prisma db push && npm start"
+healthcheckPath = "/api/v1/status"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
