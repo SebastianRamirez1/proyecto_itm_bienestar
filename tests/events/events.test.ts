@@ -18,7 +18,6 @@ afterAll(async () => {
 beforeEach(async () => {
   await prisma.eventRegistration.deleteMany();
   await prisma.event.deleteMany();
-  await prisma.user.deleteMany();
   await redis.flushdb();
 });
 
