@@ -37,8 +37,12 @@ export async function buildApp() {
   // Security
   await app.register(helmet, { contentSecurityPolicy: false });
 
+  // In production, allow the official ITM domain plus the PUBLIC_URL (Railway/Render URL).
+  // In development, reflect all origins (origin: true) for convenience.
+  const corsOrigins: string[] = ['https://itm.edu.co'];
+  if (env.PUBLIC_URL) corsOrigins.push(env.PUBLIC_URL);
   await app.register(cors, {
-    origin: env.NODE_ENV === 'production' ? ['https://itm.edu.co'] : true,
+    origin: env.NODE_ENV === 'production' ? corsOrigins : true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
     credentials: true,
@@ -71,6 +75,7 @@ export async function buildApp() {
         license: { name: 'MIT' },
       },
       servers: [
+        ...(env.PUBLIC_URL ? [{ url: env.PUBLIC_URL, description: 'Production' }] : []),
         { url: `http://localhost:${env.PORT}`, description: 'Development' },
       ],
       tags: [
