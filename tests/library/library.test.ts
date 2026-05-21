@@ -27,7 +27,7 @@ const seedBook = (overrides = {}) =>
     data: {
       title: 'Clean Code',
       author: 'Robert C. Martin',
-      isbn: `978-${Date.now()}`,
+      isbn: null, // null avoids unique-constraint collisions; provide explicitly when the test needs a specific ISBN
       availableCopies: 2,
       totalCopies: 3,
       category: 'Ingeniería de software',
