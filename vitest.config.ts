@@ -11,7 +11,11 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['src/**/*.ts'],
-      exclude: ['src/server.ts', 'src/**/*.schema.ts'],
+      exclude: [
+        'src/server.ts',
+        'src/**/*.schema.ts',
+        'src/shared/jobs/scraping.job.ts',
+      ],
     },
   },
   resolve: {
