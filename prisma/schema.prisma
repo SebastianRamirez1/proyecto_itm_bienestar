@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  student
+  admin
+}
+
+enum AlertSeverity {
+  info
+  warning
+  critical
+}
+
+enum EventCategory {
+  cultural
+  sport
+  academic
+  wellness
+  workshop
+}
+
+enum AcademicPeriodType {
+  normal
+  midterm
+  finals
+  registration
+  break
+}
+
+enum HealthContextType {
+  normal
+  midterm
+  finals
+  registration
+  start_of_semester
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         UserRole  @default(student)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  apiKeys          ApiKey[]
+  refreshTokens    RefreshToken[]
+  roomReservations LibraryRoomReservation[]
+  eventRegistrations EventRegistration[]
+
+  @@map("users")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  keyHash    String    @unique @map("key_hash")
+  name       String
+  lastUsedAt DateTime? @map("last_used_at")
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model HealthResource {
+  id          String            @id @default(uuid())
+  title       String
+  description String
+  type        String
+  url         String?
+  contextType HealthContextType @map("context_type")
+  active      Boolean           @default(true)
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@map("health_resources")
+}
+
+model CafeteriaMenu {
+  id         String   @id @default(uuid())
+  date       DateTime @unique @db.Date
+  items      Json
+  prices     Json
+  scrapedAt  DateTime @map("scraped_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("cafeteria_menus")
+}
+
+model LibraryBook {
+  id               String @id @default(uuid())
+  title            String
+  author           String
+  isbn             String? @unique
+  availableCopies  Int    @default(0) @map("available_copies")
+  totalCopies      Int    @map("total_copies")
+  category         String?
+  publishedYear    Int?   @map("published_year")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("library_books")
+}
+
+model LibraryRoom {
+  id           String   @id @default(uuid())
+  name         String
+  capacity     Int
+  available    Boolean  @default(true)
+  schedule     Json
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  reservations LibraryRoomReservation[]
+
+  @@map("library_rooms")
+}
+
+model LibraryRoomReservation {
+  id        String   @id @default(uuid())
+  roomId    String   @map("room_id")
+  userId    String   @map("user_id")
+  startTime DateTime @map("start_time")
+  endTime   DateTime @map("end_time")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  room LibraryRoom @relation(fields: [roomId], references: [id])
+  user User        @relation(fields: [userId], references: [id])
+
+  @@map("library_room_reservations")
+}
+
+model Event {
+  id               String        @id @default(uuid())
+  title            String
+  description      String
+  category         EventCategory
+  startDate        DateTime      @map("start_date")
+  endDate          DateTime      @map("end_date")
+  location         String
+  maxCapacity      Int?          @map("max_capacity")
+  registeredCount  Int           @default(0) @map("registered_count")
+  imageUrl         String?       @map("image_url")
+  active           Boolean       @default(true)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  registrations EventRegistration[]
+
+  @@map("events")
+}
+
+model EventRegistration {
+  id         String   @id @default(uuid())
+  eventId    String   @map("event_id")
+  userId     String   @map("user_id")
+  registeredAt DateTime @default(now()) @map("registered_at")
+
+  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+  @@map("event_registrations")
+}
+
+model Alert {
+  id        String        @id @default(uuid())
+  title     String
+  body      String
+  severity  AlertSeverity
+  active    Boolean       @default(true)
+  expiresAt DateTime?     @map("expires_at")
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  @@map("alerts")
+}
+
+model AcademicCalendar {
+  id         String             @id @default(uuid())
+  periodName String             @map("period_name")
+  startDate  DateTime           @map("start_date") @db.Date
+  endDate    DateTime           @map("end_date") @db.Date
+  periodType AcademicPeriodType @map("period_type")
+  createdAt  DateTime           @default(now()) @map("created_at")
+
+  @@map("academic_calendar")
+}
