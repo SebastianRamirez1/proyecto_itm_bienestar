@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { buildApp } from '../../src/app';
 import { prisma } from '../../src/config/database';
+import { redis } from '../../src/shared/cache/redis';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
@@ -16,6 +17,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await prisma.alert.deleteMany();
+  await redis.flushdb();
 });
 
 describe('GET /api/v1/alerts', () => {
