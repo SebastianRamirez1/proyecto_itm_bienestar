@@ -8,7 +8,7 @@ export async function cafeteriaRoutes(app: FastifyInstance) {
       summary: "Get today's menu (or by date). Returns X-Data-Freshness: stale if scraping failed.",
       querystring: {
         type: 'object',
-        properties: { date: { type: 'string', description: 'YYYY-MM-DD format', example: '2026-05-21' } },
+        properties: { date: { type: 'string', description: 'YYYY-MM-DD format' } },
       },
     },
     handler: cafeteriaController.getMenu,
