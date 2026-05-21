@@ -22,6 +22,10 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
 
   SCRAPER_TIMEOUT_MS: z.coerce.number().default(30000),
+
+  // Optional: public URL of the deployed instance (e.g. https://itm-bienestar.up.railway.app)
+  // Used to populate the OpenAPI server list and configure CORS in production.
+  PUBLIC_URL: z.string().url().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
