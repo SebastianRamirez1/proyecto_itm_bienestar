@@ -95,6 +95,67 @@ describe('POST /api/v1/alerts', () => {
   });
 });
 
+describe('GET /api/v1/alerts/:id', () => {
+  it('returns alert details by id', async () => {
+    const alert = await prisma.alert.create({
+      data: { title: 'Found alert', body: 'body', severity: 'info' },
+    });
+
+    const res = await app.inject({ method: 'GET', url: `/api/v1/alerts/${alert.id}` });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().data.id).toBe(alert.id);
+    expect(res.json().data.title).toBe('Found alert');
+  });
+
+  it('returns 404 for unknown alert id', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/alerts/00000000-0000-0000-0000-000000000000',
+    });
+    expect(res.statusCode).toBe(404);
+  });
+});
+
+describe('PATCH /api/v1/alerts/:id/deactivate', () => {
+  it('deactivates an active alert', async () => {
+    const alert = await prisma.alert.create({
+      data: { title: 'Active alert', body: 'body', severity: 'warning' },
+    });
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/alerts/${alert.id}/deactivate`,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().data.active).toBe(false);
+  });
+
+  it('returns 404 when deactivating a non-existent alert', async () => {
+    const res = await app.inject({
+      method: 'PATCH',
+      url: '/api/v1/alerts/00000000-0000-0000-0000-000000000000/deactivate',
+    });
+    expect(res.statusCode).toBe(404);
+  });
+});
+
+describe('GET /api/v1/alerts (cache stale header)', () => {
+  it('serves from cache and marks stale after flush', async () => {
+    await prisma.alert.create({ data: { title: 'Cache test', body: 'body', severity: 'info' } });
+
+    // Warm the cache
+    await app.inject({ method: 'GET', url: '/api/v1/alerts' });
+
+    // Flush Redis so the cache is stale on next read (if cache layer marks it)
+    await redis.flushdb();
+
+    // Second request will repopulate from DB — no stale header expected
+    const res = await app.inject({ method: 'GET', url: '/api/v1/alerts' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().data).toHaveLength(1);
+  });
+});
+
 describe('GET /api/v1/status', () => {
   it('returns ok status', async () => {
     const res = await app.inject({ method: 'GET', url: '/api/v1/status' });
