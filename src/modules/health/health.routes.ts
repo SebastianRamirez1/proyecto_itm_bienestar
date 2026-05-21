@@ -34,7 +34,13 @@ export async function healthRoutes(app: FastifyInstance) {
             data: {
               type: 'object',
               properties: {
-                currentPeriod: { type: 'object' },
+                currentPeriod: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    type: { type: 'string' },
+                  },
+                },
                 contextType: { type: 'string' },
                 resources: { type: 'array' },
               },
