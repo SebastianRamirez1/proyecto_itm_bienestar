@@ -1,25 +1,32 @@
 import { FastifyInstance } from 'fastify';
+import { cafeteriaController } from './cafeteria.controller';
 
 export async function cafeteriaRoutes(app: FastifyInstance) {
   app.get('/cafeteria/menu', {
     schema: {
       tags: ['cafeteria'],
-      summary: "Get today's menu or menu by date",
+      summary: "Get today's menu (or by date). Returns X-Data-Freshness: stale if scraping failed.",
       querystring: {
         type: 'object',
-        properties: { date: { type: 'string', format: 'date' } },
+        properties: { date: { type: 'string', description: 'YYYY-MM-DD format', example: '2026-05-21' } },
       },
     },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    handler: cafeteriaController.getMenu,
   });
 
   app.get('/cafeteria/schedule', {
-    schema: { tags: ['cafeteria'], summary: 'Get cafeteria opening hours' },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    schema: {
+      tags: ['cafeteria'],
+      summary: 'Get cafeteria opening hours',
+    },
+    handler: cafeteriaController.getSchedule,
   });
 
   app.get('/cafeteria/prices', {
-    schema: { tags: ['cafeteria'], summary: 'Get price table' },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    schema: {
+      tags: ['cafeteria'],
+      summary: 'Get current price table',
+    },
+    handler: cafeteriaController.getPrices,
   });
 }

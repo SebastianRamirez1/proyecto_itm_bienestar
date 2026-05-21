@@ -1,4 +1,6 @@
 import { FastifyInstance } from 'fastify';
+import { authController } from './auth.controller';
+import { requireAuth } from '../../shared/middleware/auth.middleware';
 
 export async function authRoutes(app: FastifyInstance) {
   app.post('/auth/register', {
@@ -9,37 +11,87 @@ export async function authRoutes(app: FastifyInstance) {
         type: 'object',
         required: ['email', 'password'],
         properties: {
-          email: { type: 'string', format: 'email' },
+          email: { type: 'string', format: 'email', description: 'Must be @itm.edu.co' },
           password: { type: 'string', minLength: 8 },
         },
       },
+      response: {
+        201: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'object',
+              properties: {
+                user: { type: 'object' },
+                accessToken: { type: 'string' },
+                refreshToken: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
     },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    handler: authController.register,
   });
 
   app.post('/auth/login', {
     schema: {
       tags: ['auth'],
-      summary: 'Login and receive JWT tokens',
+      summary: 'Login — returns access (15m) + refresh (7d) tokens',
       body: {
         type: 'object',
         required: ['email', 'password'],
         properties: {
-          email: { type: 'string' },
+          email: { type: 'string', format: 'email' },
           password: { type: 'string' },
         },
       },
     },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    handler: authController.login,
   });
 
   app.post('/auth/refresh', {
-    schema: { tags: ['auth'], summary: 'Refresh access token' },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    schema: {
+      tags: ['auth'],
+      summary: 'Exchange refresh token for a new access token',
+      body: {
+        type: 'object',
+        required: ['refreshToken'],
+        properties: { refreshToken: { type: 'string' } },
+      },
+    },
+    handler: authController.refresh,
   });
 
   app.post('/auth/logout', {
-    schema: { tags: ['auth'], summary: 'Invalidate refresh token', security: [{ bearerAuth: [] }] },
-    handler: async (_req, reply) => reply.status(501).send({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Coming in Phase 1' } }),
+    schema: {
+      tags: ['auth'],
+      summary: 'Revoke refresh token',
+      body: {
+        type: 'object',
+        required: ['refreshToken'],
+        properties: { refreshToken: { type: 'string' } },
+      },
+    },
+    handler: authController.logout,
+  });
+
+  app.post('/auth/api-key', {
+    schema: {
+      tags: ['auth'],
+      summary: 'Generate API key for external integrations',
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', description: 'Descriptive name for the key (e.g. "WhatsApp bot")' },
+          expiresAt: { type: 'string', format: 'date-time' },
+        },
+      },
+    },
+    preHandler: requireAuth,
+    handler: authController.createApiKey as never,
   });
 }
