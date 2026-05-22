@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/SebastianRamirez1/proyecto_itm_bienestar/actions/workflows/ci.yml/badge.svg)](https://github.com/SebastianRamirez1/proyecto_itm_bienestar/actions/workflows/ci.yml)
 
+**🚀 Live:** https://proyectoitmbienestar-production.up.railway.app  
+**📖 Docs:** https://proyectoitmbienestar-production.up.railway.app/docs
+
 API centralizada de servicios de bienestar del **Instituto Tecnológico Metropolitano (ITM)** — Medellín, Colombia.
 
 Resuelve el problema de la información dispersa: menú de cafetería en WhatsApp, eventos en Instagram, psicología en otra página. Esta API es el punto de entrada único para todos los servicios de bienestar.
