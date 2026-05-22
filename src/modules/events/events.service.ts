@@ -3,6 +3,7 @@ import { EventsRepository } from './events.repository';
 import { EventsQueryDto } from './events.schema';
 import { getOrSet, CacheTTL, redis } from '../../shared/cache/redis';
 import { AppError } from '../../shared/errors/AppError';
+import { fetchAgendaITMPage, scrapeAgendaITM } from './events.scraper';
 
 export class EventsService {
   constructor(private readonly repo = new EventsRepository()) {}
@@ -37,6 +38,33 @@ export class EventsService {
     const event = await this.repo.findById(id);
     if (!event) throw AppError.notFound(`Event ${id} not found`);
     return event;
+  }
+
+  /**
+   * Descarga la Agenda ITM y persiste los eventos nuevos (upsert por título+fecha).
+   * Limpia la caché de eventos próximos al terminar.
+   */
+  async scrapeAndStore(): Promise<{ created: number }> {
+    const targetYear = new Date().getFullYear();
+    const html = await fetchAgendaITMPage();
+    if (!html) {
+      console.warn('[events-scraper] No se pudo obtener la Agenda ITM');
+      return { created: 0 };
+    }
+
+    const events = scrapeAgendaITM(html, targetYear);
+    if (!events.length) {
+      console.info('[events-scraper] No se encontraron eventos en la página');
+      return { created: 0 };
+    }
+
+    const created = await this.repo.upsertScrapedEvents(events);
+    if (created > 0) {
+      await redis.del('events:upcoming');
+    }
+
+    console.info(`[events-scraper] ${created} eventos nuevos almacenados de ${events.length} parseados`);
+    return { created };
   }
 
   async registerToEvent(eventId: string, userId: string) {
