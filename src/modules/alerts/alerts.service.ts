@@ -3,6 +3,9 @@ import { AlertsRepository } from './alerts.repository';
 import { CreateAlertDto } from './alerts.schema';
 import { getOrSet, CacheTTL, redis } from '../../shared/cache/redis';
 import { AppError } from '../../shared/errors/AppError';
+import { WebhooksService } from '../webhooks/webhooks.service';
+
+const webhooksService = new WebhooksService();
 
 const CACHE_KEY = 'alerts:active';
 
@@ -27,6 +30,7 @@ export class AlertsService {
     const alert = await this.repo.create(dto);
     await redis.del(CACHE_KEY);
     await redis.del(`${CACHE_KEY}:${alert.severity}`);
+    if (alert.severity === 'critical') webhooksService.fireForCriticalAlert(alert);
     return alert;
   }
 
