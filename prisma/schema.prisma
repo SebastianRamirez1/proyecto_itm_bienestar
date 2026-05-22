@@ -50,10 +50,11 @@ model User {
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  apiKeys          ApiKey[]
-  refreshTokens    RefreshToken[]
-  roomReservations LibraryRoomReservation[]
+  apiKeys            ApiKey[]
+  refreshTokens      RefreshToken[]
+  roomReservations   LibraryRoomReservation[]
   eventRegistrations EventRegistration[]
+  webhooks           Webhook[]
 
   @@map("users")
 }
@@ -196,6 +197,19 @@ model Alert {
   updatedAt DateTime      @updatedAt @map("updated_at")
 
   @@map("alerts")
+}
+
+model Webhook {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  url       String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("webhooks")
 }
 
 model AcademicCalendar {

@@ -15,6 +15,7 @@ import { healthRoutes } from './modules/health/health.routes';
 import { libraryRoutes } from './modules/library/library.routes';
 import { eventsRoutes } from './modules/events/events.routes';
 import { authRoutes } from './modules/auth/auth.routes';
+import { webhooksRoutes } from './modules/webhooks/webhooks.routes';
 
 export async function buildApp() {
   const app = Fastify({
@@ -86,6 +87,7 @@ export async function buildApp() {
         { name: 'health', description: 'Mental health resources' },
         { name: 'library', description: 'Library books & study rooms' },
         { name: 'events', description: 'Campus events' },
+        { name: 'webhooks', description: 'Webhook subscriptions for critical alert notifications' },
       ],
       components: {
         securitySchemes: {
@@ -140,6 +142,7 @@ export async function buildApp() {
   await app.register(healthRoutes, { prefix });
   await app.register(libraryRoutes, { prefix });
   await app.register(eventsRoutes, { prefix });
+  await app.register(webhooksRoutes, { prefix });
 
   return app;
 }
