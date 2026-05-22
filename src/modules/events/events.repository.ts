@@ -48,6 +48,20 @@ export class EventsRepository {
     return !!reg;
   }
 
+  async upsertScrapedEvents(events: import('./events.scraper').ScrapedEvent[]): Promise<number> {
+    let created = 0;
+    for (const ev of events) {
+      const existing = await prisma.event.findFirst({
+        where: { title: ev.title, startDate: ev.startDate },
+      });
+      if (!existing) {
+        await prisma.event.create({ data: ev });
+        created++;
+      }
+    }
+    return created;
+  }
+
   async registerUserToEvent(eventId: string, userId: string) {
     return prisma.$transaction(async (tx) => {
       const event = await tx.event.findUnique({ where: { id: eventId } });
