@@ -1,0 +1,468 @@
+{
+  "info": {
+    "name": "ITM Bienestar API",
+    "description": "API centralizada de servicios de bienestar del Instituto Tecnológico Metropolitano (ITM) — Medellín, Colombia.\n\n## Setup rápido\n1. Importa esta colección en Postman\n2. Importa el environment `ITM_Bienestar.postman_environment.json`\n3. Ejecuta **00 – Setup / Register** o **00 – Setup / Login** — el token se guarda automáticamente\n4. Todos los endpoints protegidos ya usan `{{token}}` automáticamente\n\n**Base URL de producción:** https://proyectoitmbienestar-production.up.railway.app",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": { "major": 1, "minor": 0, "patch": 0 }
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://proyectoitmbienestar-production.up.railway.app", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "00 – Setup",
+      "description": "Registra un usuario o inicia sesión. El token se guarda automáticamente en la variable `{{token}}`.",
+      "item": [
+        {
+          "name": "Register",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.data && json.data.accessToken) {",
+                "  pm.collectionVariables.set('token', json.data.accessToken);",
+                "  pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+                "  console.log('✅ Token saved');",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.student@itm.edu.co\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/register", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","register"] },
+            "description": "Registra un nuevo usuario ITM. Solo se aceptan emails @itm.edu.co o @correo.itm.edu.co."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.data && json.data.accessToken) {",
+                "  pm.collectionVariables.set('token', json.data.accessToken);",
+                "  pm.collectionVariables.set('refreshToken', json.data.refreshToken);",
+                "  console.log('✅ Token saved');",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo.student@itm.edu.co\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","login"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.data && json.data.accessToken) {",
+                "  pm.collectionVariables.set('token', json.data.accessToken);",
+                "  console.log('✅ Token refreshed');",
+                "}"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","refresh"] }
+          }
+        },
+        {
+          "name": "Generate API Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"WhatsApp bot\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/api-key", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","api-key"] },
+            "description": "Genera una API Key con prefijo `itm_`. Guárdala — no se vuelve a mostrar."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 – Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/status", "host": ["{{baseUrl}}"], "path": ["api","v1","status"] },
+            "description": "Verifica que la API esté en línea."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 – Alertas",
+      "description": "Alertas activas del campus ITM. Las alertas críticas disparan webhooks registrados.",
+      "item": [
+        {
+          "name": "Listar alertas activas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/alerts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","alerts"],
+              "query": [
+                { "key": "severity", "value": "critical", "disabled": true, "description": "Filtrar por severidad: info | warning | critical" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar alertas – filtrar por severidad",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/alerts?severity=warning",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","alerts"],
+              "query": [{ "key": "severity", "value": "warning" }]
+            }
+          }
+        },
+        {
+          "name": "Obtener alerta por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/alerts/:id", "host": ["{{baseUrl}}"], "path": ["api","v1","alerts",":id"], "variable": [{ "key": "id", "value": "" }] },
+            "description": "Reemplaza `:id` con el UUID de una alerta."
+          }
+        },
+        {
+          "name": "Crear alerta",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cierre anticipado cafetería\",\n  \"body\": \"La cafetería cerrará a las 2pm por evento institucional.\",\n  \"severity\": \"warning\",\n  \"expiresAt\": \"2026-12-31T14:00:00Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/alerts", "host": ["{{baseUrl}}"], "path": ["api","v1","alerts"] },
+            "description": "severity: info | warning | critical. Las críticas disparan webhooks."
+          }
+        },
+        {
+          "name": "Crear alerta CRÍTICA (dispara webhooks)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Evacuación edificio 3\",\n  \"body\": \"Por favor evacuar el edificio 3 inmediatamente por simulacro de emergencia.\",\n  \"severity\": \"critical\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/alerts", "host": ["{{baseUrl}}"], "path": ["api","v1","alerts"] }
+          }
+        },
+        {
+          "name": "Desactivar alerta",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/v1/alerts/:id/deactivate", "host": ["{{baseUrl}}"], "path": ["api","v1","alerts",":id","deactivate"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 – Cafetería",
+      "description": "Menú diario y horarios de la cafetería ITM. El menú se actualiza automáticamente a las 7:30am y 11am en días hábiles.",
+      "item": [
+        {
+          "name": "Menú de hoy",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/cafeteria/menu", "host": ["{{baseUrl}}"], "path": ["api","v1","cafeteria","menu"] },
+            "description": "Retorna el menú del día actual. Si no hay datos scrapeados, retorna el menú de respaldo."
+          }
+        },
+        {
+          "name": "Menú por fecha",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cafeteria/menu?date=2026-05-22",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","cafeteria","menu"],
+              "query": [{ "key": "date", "value": "2026-05-22", "description": "Formato YYYY-MM-DD" }]
+            }
+          }
+        },
+        {
+          "name": "Precios",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/cafeteria/prices", "host": ["{{baseUrl}}"], "path": ["api","v1","cafeteria","prices"] }
+          }
+        },
+        {
+          "name": "Horarios cafetería",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/cafeteria/schedule", "host": ["{{baseUrl}}"], "path": ["api","v1","cafeteria","schedule"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 – Salud Mental",
+      "description": "Recursos de salud mental contextualizados al calendario académico (parciales, finales, etc.).",
+      "item": [
+        {
+          "name": "Listar recursos activos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/health/resources", "host": ["{{baseUrl}}"], "path": ["api","v1","health","resources"] }
+          }
+        },
+        {
+          "name": "Tips contextuales (según período académico)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/health/tips", "host": ["{{baseUrl}}"], "path": ["api","v1","health","tips"] },
+            "description": "Retorna recursos relevantes al período actual: tips de parciales durante semana de parciales, tips de finales durante finales, etc."
+          }
+        },
+        {
+          "name": "Horario consultorio psicología",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/health/schedule", "host": ["{{baseUrl}}"], "path": ["api","v1","health","schedule"] }
+          }
+        },
+        {
+          "name": "Líneas de emergencia",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/health/emergency", "host": ["{{baseUrl}}"], "path": ["api","v1","health","emergency"] },
+            "description": "Disponible siempre. No requiere autenticación."
+          }
+        },
+        {
+          "name": "Solicitar cita psicología",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferredDate\": \"2026-06-10T10:00:00Z\",\n  \"reason\": \"Manejo de ansiedad y estrés por carga académica en período de finales.\",\n  \"modality\": \"presencial\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/health/appointment", "host": ["{{baseUrl}}"], "path": ["api","v1","health","appointment"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 – Biblioteca",
+      "description": "Catálogo de libros y reservas de salas de estudio.",
+      "item": [
+        {
+          "name": "Buscar libros",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/library/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","library","books"],
+              "query": [
+                { "key": "q", "value": "arquitectura", "disabled": true, "description": "Buscar por título o autor" },
+                { "key": "available", "value": "true", "disabled": true, "description": "Solo libros disponibles" },
+                { "key": "page", "value": "1", "disabled": true },
+                { "key": "limit", "value": "10", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar libros disponibles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/library/books?available=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","library","books"],
+              "query": [{ "key": "available", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Obtener libro por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/library/books/:id", "host": ["{{baseUrl}}"], "path": ["api","v1","library","books",":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Listar salas de estudio",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/library/rooms", "host": ["{{baseUrl}}"], "path": ["api","v1","library","rooms"] }
+          }
+        },
+        {
+          "name": "Reservar sala",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomId\": \"ROOM_UUID_AQUI\",\n  \"startTime\": \"2026-06-10T09:00:00Z\",\n  \"endTime\": \"2026-06-10T11:00:00Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/library/rooms/reserve", "host": ["{{baseUrl}}"], "path": ["api","v1","library","rooms","reserve"] },
+            "description": "Máximo 4 horas por reserva. Detecta conflictos automáticamente."
+          }
+        },
+        {
+          "name": "Horario biblioteca",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/library/schedule", "host": ["{{baseUrl}}"], "path": ["api","v1","library","schedule"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 – Eventos",
+      "description": "Eventos del campus: culturales, deportivos, académicos, bienestar y talleres.",
+      "item": [
+        {
+          "name": "Listar eventos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","events"],
+              "query": [
+                { "key": "category", "value": "sport", "disabled": true, "description": "cultural | sport | academic | wellness | workshop" },
+                { "key": "page", "value": "1", "disabled": true },
+                { "key": "limit", "value": "20", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Próximos eventos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/events/upcoming", "host": ["{{baseUrl}}"], "path": ["api","v1","events","upcoming"] }
+          }
+        },
+        {
+          "name": "Obtener evento por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/events/:id", "host": ["{{baseUrl}}"], "path": ["api","v1","events",":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Inscribirse a evento",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/events/:id/register", "host": ["{{baseUrl}}"], "path": ["api","v1","events",":id","register"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        },
+        {
+          "name": "Cancelar inscripción",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/events/:id/register", "host": ["{{baseUrl}}"], "path": ["api","v1","events",":id","register"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 – Webhooks",
+      "description": "Suscripciones para recibir notificaciones POST cuando se crea una alerta crítica.",
+      "item": [
+        {
+          "name": "Registrar webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://tu-servidor.com/webhook/itm\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/webhooks", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks"] },
+            "description": "Registra una URL que recibirá un POST cuando se cree una alerta crítica.\n\n**Payload entregado:**\n```json\n{\n  \"event\": \"alert.critical\",\n  \"timestamp\": \"2026-05-22T12:00:00Z\",\n  \"data\": { \"id\", \"title\", \"body\", \"severity\", \"createdAt\" }\n}\n```\n**Header incluido:** `X-ITM-Event: alert.critical`"
+          }
+        },
+        {
+          "name": "Listar mis webhooks",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/webhooks", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks"] }
+          }
+        },
+        {
+          "name": "Eliminar webhook",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/webhooks/:id", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks",":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    }
+  ]
+}
