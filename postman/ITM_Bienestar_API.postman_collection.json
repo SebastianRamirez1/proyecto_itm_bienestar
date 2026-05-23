@@ -3,7 +3,7 @@
     "name": "ITM Bienestar API",
     "description": "API centralizada de servicios de bienestar del Instituto Tecnológico Metropolitano (ITM) — Medellín, Colombia.\n\n## Setup rápido\n1. Importa esta colección en Postman\n2. Importa el environment `ITM_Bienestar.postman_environment.json`\n3. Ejecuta **00 – Setup / Register** o **00 – Setup / Login** — el token se guarda automáticamente\n4. Todos los endpoints protegidos ya usan `{{token}}` automáticamente\n\n**Base URL de producción:** https://proyectoitmbienestar-production.up.railway.app",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "version": { "major": 1, "minor": 0, "patch": 0 }
+    "version": { "major": 1, "minor": 1, "patch": 0 }
   },
   "variable": [
     { "key": "baseUrl", "value": "https://proyectoitmbienestar-production.up.railway.app", "type": "string" },
@@ -460,6 +460,24 @@
             "method": "DELETE",
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": { "raw": "{{baseUrl}}/api/v1/webhooks/:id", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks",":id"], "variable": [{ "key": "id", "value": "" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 – Métricas",
+      "description": "Estadísticas de uso de la API en tiempo real. Contadores persistidos en Redis — sobreviven reinicios del servidor.",
+      "item": [
+        {
+          "name": "Dashboard de métricas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api","v1","metrics"]
+            },
+            "description": "Devuelve:\n- **uptime**: tiempo activo del servidor en segundos y formato humano\n- **requests.total**: total de requests desde el último reinicio de Redis\n- **requests.byModule**: conteo por módulo (alerts, cafeteria, health, library, events, auth, webhooks, status, other)\n- **latency.avgMs**: latencia promedio en ms por módulo\n\n**Ejemplo de respuesta:**\n```json\n{\n  \"data\": {\n    \"uptime\": { \"seconds\": 3720, \"human\": \"1h 2m\" },\n    \"requests\": {\n      \"total\": 134,\n      \"byModule\": {\n        \"alerts\": 42, \"cafeteria\": 28, \"health\": 18,\n        \"library\": 12, \"events\": 21, \"auth\": 8,\n        \"webhooks\": 3, \"status\": 2, \"other\": 0\n      }\n    },\n    \"latency\": {\n      \"avgMs\": {\n        \"alerts\": 9, \"cafeteria\": 14, \"health\": 7,\n        \"library\": 11, \"events\": 12, \"auth\": 18,\n        \"webhooks\": 6, \"status\": 3, \"other\": 0\n      }\n    }\n  }\n}\n```"
           }
         }
       ]
