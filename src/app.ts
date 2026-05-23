@@ -52,9 +52,14 @@ export async function buildApp() {
   // Security
   await app.register(helmet, { contentSecurityPolicy: false });
 
-  // In production, allow the official ITM domain plus the PUBLIC_URL (Railway/Render URL).
+  // In production, allow the official ITM domain, the Railway PUBLIC_URL,
+  // the Vercel frontend, and localhost for local development.
   // In development, reflect all origins (origin: true) for convenience.
-  const corsOrigins: string[] = ['https://itm.edu.co'];
+  const corsOrigins: string[] = [
+    'https://itm.edu.co',
+    'https://proyecto-itm-bienestar-frontend.vercel.app',
+    'http://localhost:5173',
+  ];
   if (env.PUBLIC_URL) corsOrigins.push(env.PUBLIC_URL);
   await app.register(cors, {
     origin: env.NODE_ENV === 'production' ? corsOrigins : true,
