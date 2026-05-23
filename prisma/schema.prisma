@@ -55,6 +55,7 @@ model User {
   roomReservations   LibraryRoomReservation[]
   eventRegistrations EventRegistration[]
   webhooks           Webhook[]
+  appointments       Appointment[]
 
   @@map("users")
 }
@@ -210,6 +211,27 @@ model Webhook {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("webhooks")
+}
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+model Appointment {
+  id            String            @id @default(uuid())
+  userId        String            @map("user_id")
+  preferredDate DateTime          @map("preferred_date")
+  reason        String
+  modality      String            @default("presencial")
+  status        AppointmentStatus @default(pending)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("appointments")
 }
 
 model AcademicCalendar {
