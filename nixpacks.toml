@@ -1,0 +1,14 @@
+# nixpacks.toml — Railway build configuration
+#
+# Problem: Railway sets NODE_ENV=production which causes `npm ci` to skip
+# devDependencies, making `tsc` (typescript) unavailable during the build phase.
+# Fix: install devDependencies explicitly during the install phase.
+
+[phases.install]
+cmds = ["npm ci --include=dev"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "sh start.sh"
