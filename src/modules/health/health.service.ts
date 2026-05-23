@@ -164,4 +164,35 @@ export class HealthService {
   getEmergencyContacts() {
     return EMERGENCY_CONTACTS;
   }
+
+  async requestAppointment(
+    userId: string,
+    userEmail: string,
+    body: { preferredDate: string; reason: string; modality?: string },
+  ) {
+    const appointment = await this.repo.createAppointment({
+      userId,
+      preferredDate: new Date(body.preferredDate),
+      reason: body.reason,
+      modality: body.modality ?? 'presencial',
+    });
+
+    // Fire-and-forget notification
+    // TODO: replace with real email provider (Resend / Nodemailer) when SMTP_HOST is configured
+    this.notifyPsychologyTeam(userEmail, appointment).catch(() => {});
+
+    return appointment;
+  }
+
+  private async notifyPsychologyTeam(
+    userEmail: string,
+    appointment: { id: string; preferredDate: Date; reason: string; modality: string },
+  ): Promise<void> {
+    const date = appointment.preferredDate.toISOString().split('T')[0];
+    console.log(
+      `[health:appointment] id=${appointment.id} user=${userEmail} ` +
+      `date=${date} modality=${appointment.modality}`,
+    );
+    // Future: send email to acercarse@itm.edu.co with appointment details
+  }
 }

@@ -16,6 +16,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
+  await prisma.appointment.deleteMany();
   await prisma.healthResource.deleteMany();
   await prisma.academicCalendar.deleteMany();
   await redis.flushdb();
@@ -117,7 +118,7 @@ describe('POST /api/v1/health/appointment', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('accepts appointment request with valid token', async () => {
+  it('returns 202 with appointment details', async () => {
     const reg = await app.inject({
       method: 'POST',
       url: '/api/v1/auth/register',
@@ -135,7 +136,59 @@ describe('POST /api/v1/health/appointment', () => {
       },
       headers: { authorization: `Bearer ${accessToken}` },
     });
+
     expect(res.statusCode).toBe(202);
-    expect(res.json().data.message).toBeDefined();
+    const { data } = res.json();
+    expect(data.message).toBeDefined();
+    expect(data.appointmentId).toBeDefined();
+    expect(data.status).toBe('pending');
+    expect(data.modality).toBe('virtual');
+  });
+
+  it('persists appointment in the database', async () => {
+    const reg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/register',
+      payload: { email: `health.persist.${Date.now()}@itm.edu.co`, password: 'Password123!' },
+    });
+    const { accessToken } = reg.json().data;
+
+    await app.inject({
+      method: 'POST',
+      url: '/api/v1/health/appointment',
+      payload: {
+        preferredDate: new Date(Date.now() + 86400000).toISOString(),
+        reason: 'Quiero hablar con alguien sobre el estrés académico',
+      },
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    const appointments = await prisma.appointment.findMany();
+    expect(appointments).toHaveLength(1);
+    expect(appointments[0].status).toBe('pending');
+    expect(appointments[0].modality).toBe('presencial'); // default
+    expect(appointments[0].reason).toBe('Quiero hablar con alguien sobre el estrés académico');
+  });
+
+  it('defaults modality to presencial when not specified', async () => {
+    const reg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/register',
+      payload: { email: `health.default.${Date.now()}@itm.edu.co`, password: 'Password123!' },
+    });
+    const { accessToken } = reg.json().data;
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/health/appointment',
+      payload: {
+        preferredDate: new Date(Date.now() + 86400000).toISOString(),
+        reason: 'Apoyo para manejar la ansiedad ante los exámenes',
+      },
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+
+    expect(res.statusCode).toBe(202);
+    expect(res.json().data.modality).toBe('presencial');
   });
 });
