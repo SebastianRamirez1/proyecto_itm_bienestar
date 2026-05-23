@@ -24,13 +24,24 @@ export const healthController = {
   },
 
   async requestAppointment(request: FastifyRequest, reply: FastifyReply) {
-    // Appointment logic will be expanded in Phase 3 with email/notification
+    const { sub: userId, email } = request.user;
+    const body = request.body as {
+      preferredDate: string;
+      reason: string;
+      modality?: string;
+    };
+
+    const appointment = await service.requestAppointment(userId, email, body);
+
     return reply.status(202).send({
       success: true,
       data: {
         message: 'Solicitud recibida. El equipo de psicología se comunicará contigo en 24 horas hábiles.',
-        submittedAt: new Date().toISOString(),
-        user: (request as never as { user: { email: string } }).user?.email,
+        appointmentId: appointment.id,
+        status: appointment.status,
+        preferredDate: appointment.preferredDate,
+        modality: appointment.modality,
+        submittedAt: appointment.createdAt,
       },
     });
   },
