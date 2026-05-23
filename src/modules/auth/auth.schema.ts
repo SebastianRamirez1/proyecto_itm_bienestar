@@ -4,8 +4,8 @@ export const RegisterSchema = z.object({
   email: z
     .string()
     .email('Invalid email format')
-    .refine((e) => e.endsWith('@itm.edu.co'), {
-      message: 'Only institutional emails (@itm.edu.co) are allowed',
+    .refine((e) => e.endsWith('@itm.edu.co') || e.endsWith('@correo.itm.edu.co'), {
+      message: 'Only institutional emails (@itm.edu.co or @correo.itm.edu.co) are allowed',
     }),
   password: z
     .string()
