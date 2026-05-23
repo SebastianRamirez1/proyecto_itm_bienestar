@@ -16,6 +16,20 @@ import { libraryRoutes } from './modules/library/library.routes';
 import { eventsRoutes } from './modules/events/events.routes';
 import { authRoutes } from './modules/auth/auth.routes';
 import { webhooksRoutes } from './modules/webhooks/webhooks.routes';
+import { metricsRoutes } from './modules/metrics/metrics.routes';
+import { MetricsService } from './modules/metrics/metrics.service';
+
+const metricsService = new MetricsService();
+
+/** Extracts the module name from a request URL.
+ *  /api/v1/alerts/123  →  "alerts"
+ *  /api/v1/status      →  "status"
+ *  /docs/...           →  "other"
+ */
+function extractModule(url: string): string {
+  const match = url.match(/\/api\/v\d+\/([^/?]+)/);
+  return match?.[1] ?? 'other';
+}
 
 export async function buildApp() {
   const app = Fastify({
@@ -88,6 +102,7 @@ export async function buildApp() {
         { name: 'library', description: 'Library books & study rooms' },
         { name: 'events', description: 'Campus events' },
         { name: 'webhooks', description: 'Webhook subscriptions for critical alert notifications' },
+        { name: 'metrics', description: 'API usage metrics: request counts, latency and uptime' },
       ],
       components: {
         securitySchemes: {
@@ -106,6 +121,13 @@ export async function buildApp() {
 
   // Global error handler
   app.setErrorHandler(errorHandler);
+
+  // Metrics hook — records every request after the response is sent
+  app.addHook('onResponse', async (request, reply) => {
+    const module  = extractModule(request.url);
+    const elapsed = Math.round(reply.elapsedTime);
+    metricsService.record(module, elapsed).catch(() => {/* non-blocking */});
+  });
 
   // Status endpoint
   app.get(
@@ -143,6 +165,7 @@ export async function buildApp() {
   await app.register(libraryRoutes, { prefix });
   await app.register(eventsRoutes, { prefix });
   await app.register(webhooksRoutes, { prefix });
+  await app.register(metricsRoutes, { prefix });
 
   return app;
 }
