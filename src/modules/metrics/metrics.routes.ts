@@ -28,14 +28,20 @@ export async function metricsRoutes(app: FastifyInstance) {
                   requests: {
                     type: 'object',
                     properties: {
-                      total:    { type: 'number' },
-                      byModule: { type: 'object' },
+                      total: { type: 'number' },
+                      byModule: {
+                        type: 'object',
+                        additionalProperties: { type: 'number' },
+                      },
                     },
                   },
                   latency: {
                     type: 'object',
                     properties: {
-                      avgMs: { type: 'object' },
+                      avgMs: {
+                        type: 'object',
+                        additionalProperties: { type: 'number' },
+                      },
                     },
                   },
                 },
