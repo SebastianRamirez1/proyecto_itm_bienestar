@@ -20,4 +20,9 @@ export const webhooksController = {
     await service.remove(request.params.id, request.user.sub);
     return reply.status(204).send();
   },
+
+  async test(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+    const result = await service.testWebhook(request.params.id, request.user.sub);
+    return reply.send({ success: true, data: result });
+  },
 };

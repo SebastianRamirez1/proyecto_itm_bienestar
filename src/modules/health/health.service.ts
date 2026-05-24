@@ -165,6 +165,10 @@ export class HealthService {
     return EMERGENCY_CONTACTS;
   }
 
+  async getUserAppointments(userId: string) {
+    return this.repo.findAppointmentsByUser(userId);
+  }
+
   async requestAppointment(
     userId: string,
     userEmail: string,

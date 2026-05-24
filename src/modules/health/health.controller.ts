@@ -23,6 +23,12 @@ export const healthController = {
     return reply.send({ success: true, data: service.getEmergencyContacts() });
   },
 
+  async getMyAppointments(request: FastifyRequest, reply: FastifyReply) {
+    const { sub: userId } = request.user;
+    const appointments = await service.getUserAppointments(userId);
+    return reply.send({ success: true, data: appointments });
+  },
+
   async requestAppointment(request: FastifyRequest, reply: FastifyReply) {
     const { sub: userId, email } = request.user;
     const body = request.body as {

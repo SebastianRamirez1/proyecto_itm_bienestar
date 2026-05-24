@@ -47,6 +47,21 @@ export async function webhooksRoutes(app: FastifyInstance) {
     handler: webhooksController.list,
   });
 
+  app.post('/webhooks/:id/test', {
+    schema: {
+      tags: ['webhooks'],
+      summary: 'Send a test payload to a webhook',
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        properties: { id: { type: 'string' } },
+        required: ['id'],
+      },
+    },
+    preHandler: requireAuth,
+    handler: webhooksController.test,
+  });
+
   app.delete('/webhooks/:id', {
     schema: {
       tags: ['webhooks'],
