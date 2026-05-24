@@ -21,6 +21,30 @@ export class WebhooksService {
     return this.repo.delete(id);
   }
 
+  async testWebhook(id: string, userId: string): Promise<{ delivered: boolean; statusCode?: number; error?: string }> {
+    const webhook = await this.repo.findById(id);
+    if (!webhook) throw AppError.notFound('Webhook not found');
+    if (webhook.userId !== userId) throw AppError.forbidden('Cannot test another user\'s webhook');
+
+    const payload = JSON.stringify({
+      event: 'webhook.test',
+      timestamp: new Date().toISOString(),
+      data: { message: 'ITM Bienestar webhook test — conexión verificada correctamente.' },
+    });
+
+    try {
+      const res = await fetch(webhook.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-ITM-Event': 'webhook.test' },
+        body: payload,
+        signal: AbortSignal.timeout(8000),
+      });
+      return { delivered: res.ok, statusCode: res.status };
+    } catch (err) {
+      return { delivered: false, error: (err as Error).message };
+    }
+  }
+
   /**
    * Fire-and-forget delivery to all active webhooks.
    * Called after a critical alert is created — does NOT block the response.
