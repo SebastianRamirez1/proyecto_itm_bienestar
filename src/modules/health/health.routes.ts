@@ -68,6 +68,16 @@ export async function healthRoutes(app: FastifyInstance) {
     handler: healthController.getEmergency,
   });
 
+  app.get('/health/appointments', {
+    schema: {
+      tags: ['health'],
+      summary: 'List my psychology appointment requests',
+      security: [{ bearerAuth: [] }],
+    },
+    preHandler: requireAuth,
+    handler: healthController.getMyAppointments,
+  });
+
   app.post('/health/appointment', {
     schema: {
       tags: ['health'],
