@@ -193,9 +193,9 @@ export class HealthService {
     appointment: { id: string; preferredDate: Date; reason: string; modality: string },
   ): Promise<void> {
     const date = appointment.preferredDate.toISOString().split('T')[0];
-    console.log(
-      `[health:appointment] id=${appointment.id} user=${userEmail} ` +
-      `date=${date} modality=${appointment.modality}`,
+    // Structured operational log — no sensitive data (no reason, no full email)
+    console.info(
+      `[health:appointment] new request id=${appointment.id} date=${date} modality=${appointment.modality}`,
     );
     // Future: send email to acercarse@itm.edu.co with appointment details
   }
