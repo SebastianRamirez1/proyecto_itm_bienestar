@@ -1,0 +1,33 @@
+version: 2
+
+updates:
+  # npm dependencies — weekly on Monday
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Bogota"
+    open-pull-requests-limit: 5
+    # Target develop so PRs go through the standard review flow
+    target-branch: "develop"
+    groups:
+      # Batch all non-breaking minor/patch updates
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Prisma major version requires Node >=20.19 — pin to v5.x
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "prisma"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions — monthly
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "develop"
