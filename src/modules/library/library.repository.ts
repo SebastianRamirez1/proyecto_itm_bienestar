@@ -1,4 +1,4 @@
-import { LibraryBook, LibraryRoom, LibraryRoomReservation } from '@prisma/client';
+import type { LibraryBook, LibraryRoom, LibraryRoomReservation } from '@prisma/client';
 import { prisma } from '../../config/database';
 
 export class LibraryRepository {

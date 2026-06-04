@@ -1,7 +1,7 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { AlertsService } from './alerts.service';
 import { AlertQuerySchema, CreateAlertSchema } from './alerts.schema';
-import { AlertSeverity } from '@prisma/client';
+import type { AlertSeverity } from '@prisma/client';
 
 const service = new AlertsService();
 

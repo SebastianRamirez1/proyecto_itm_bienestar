@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { MenuItem } from './cafeteria.schema';
+import type { MenuItem } from './cafeteria.schema';
 
 interface ScrapedMenu {
   items: MenuItem[];

@@ -16,6 +16,14 @@ export default defineConfig({
         'src/**/*.schema.ts',
         'src/shared/jobs/scraping.job.ts',
       ],
+      // CI fails if coverage drops below these — QA standard ISO 25010
+      // Baseline (2026-06-04): 87% stmts · 77% branches · 87% funcs · 88% lines
+      thresholds: {
+        statements: 80,
+        branches:   75,
+        functions:  80,
+        lines:      80,
+      },
     },
   },
   resolve: {

@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install dependencies
@@ -73,7 +73,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version-file: '.nvmrc'
           cache: 'npm'
 
       - name: Install dependencies
@@ -85,5 +85,6 @@ jobs:
       - name: Push schema to test DB
         run: npx prisma db push --accept-data-loss
 
-      - name: Run tests
+      - name: Run tests with coverage
+        # --coverage enforces thresholds defined in vitest.config.ts
         run: npm test -- --coverage

@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { alertsController } from './alerts.controller';
 
 export async function alertsRoutes(app: FastifyInstance) {

@@ -1,6 +1,6 @@
-import { EventCategory } from '@prisma/client';
+import type { EventCategory } from '@prisma/client';
 import { EventsRepository } from './events.repository';
-import { EventsQueryDto } from './events.schema';
+import type { EventsQueryDto } from './events.schema';
 import { getOrSet, CacheTTL, redis } from '../../shared/cache/redis';
 import { AppError } from '../../shared/errors/AppError';
 import { fetchAgendaITMPage, scrapeAgendaITM } from './events.scraper';
