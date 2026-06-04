@@ -1,5 +1,5 @@
 import { LibraryRepository } from './library.repository';
-import { BookSearchDto, ReserveRoomDto } from './library.schema';
+import type { BookSearchDto, ReserveRoomDto } from './library.schema';
 import { getOrSet, CacheTTL } from '../../shared/cache/redis';
 import { AppError } from '../../shared/errors/AppError';
 

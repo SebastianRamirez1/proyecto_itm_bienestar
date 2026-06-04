@@ -1,6 +1,6 @@
-import { AlertSeverity } from '@prisma/client';
+import type { AlertSeverity } from '@prisma/client';
 import { AlertsRepository } from './alerts.repository';
-import { CreateAlertDto } from './alerts.schema';
+import type { CreateAlertDto } from './alerts.schema';
 import { getOrSet, CacheTTL, redis } from '../../shared/cache/redis';
 import { AppError } from '../../shared/errors/AppError';
 import { WebhooksService } from '../webhooks/webhooks.service';

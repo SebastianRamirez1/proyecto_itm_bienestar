@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { cafeteriaController } from './cafeteria.controller';
 
 export async function cafeteriaRoutes(app: FastifyInstance) {

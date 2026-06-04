@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { WebhooksService } from './webhooks.service';
 import { CreateWebhookSchema } from './webhooks.schema';
 

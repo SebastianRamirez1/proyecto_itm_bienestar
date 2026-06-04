@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { createHash } from 'crypto';
 import { AuthRepository } from './auth.repository';
-import {
+import type {
   RegisterDto,
   LoginDto,
   RefreshDto,

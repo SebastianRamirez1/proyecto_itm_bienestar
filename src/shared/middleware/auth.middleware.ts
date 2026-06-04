@@ -1,6 +1,5 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { verifyToken } from '../utils/tokens';
-import { AppError } from '../errors/AppError';
 import type { JwtPayload } from '../types';
 
 declare module 'fastify' {

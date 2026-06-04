@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { eventsController } from './events.controller';
 import { requireAuth } from '../../shared/middleware/auth.middleware';
 

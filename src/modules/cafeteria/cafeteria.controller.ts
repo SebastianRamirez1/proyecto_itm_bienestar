@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { CafeteriaService } from './cafeteria.service';
 import { MenuDateQuerySchema } from './cafeteria.schema';
 
