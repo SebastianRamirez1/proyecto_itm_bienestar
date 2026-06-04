@@ -1,4 +1,4 @@
-import { HealthResource, AcademicCalendar, Appointment } from '@prisma/client';
+import type { HealthResource, AcademicCalendar, Appointment } from '@prisma/client';
 import { prisma } from '../../config/database';
 
 export class HealthRepository {

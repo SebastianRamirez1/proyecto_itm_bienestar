@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { LibraryService } from './library.service';
 import { BookSearchSchema, ReserveRoomSchema } from './library.schema';
 import type { JwtPayload } from '../../shared/types';

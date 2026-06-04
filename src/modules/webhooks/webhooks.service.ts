@@ -1,5 +1,5 @@
 import { WebhooksRepository } from './webhooks.repository';
-import { CreateWebhookDto } from './webhooks.schema';
+import type { CreateWebhookDto } from './webhooks.schema';
 import { AppError } from '../../shared/errors/AppError';
 import type { Alert } from '@prisma/client';
 

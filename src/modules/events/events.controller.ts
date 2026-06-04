@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyRequest, FastifyReply } from 'fastify';
 import { EventsService } from './events.service';
 import { EventsQuerySchema } from './events.schema';
 import type { JwtPayload } from '../../shared/types';

@@ -28,7 +28,7 @@ function makeReply() {
 }
 
 function makeRequest(headers: Record<string, string> = {}) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   return { headers, user: undefined as unknown } as any;
 }
 

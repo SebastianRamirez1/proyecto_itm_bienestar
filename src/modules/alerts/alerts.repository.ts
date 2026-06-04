@@ -1,6 +1,6 @@
-import { Alert, AlertSeverity } from '@prisma/client';
+import type { Alert, AlertSeverity } from '@prisma/client';
 import { prisma } from '../../config/database';
-import { CreateAlertDto } from './alerts.schema';
+import type { CreateAlertDto } from './alerts.schema';
 
 export class AlertsRepository {
   async findAllActive(severity?: AlertSeverity): Promise<Alert[]> {
