@@ -1,4 +1,4 @@
-import { User, ApiKey, RefreshToken } from '@prisma/client';
+import type { User, ApiKey, RefreshToken } from '@prisma/client';
 import { prisma } from '../../config/database';
 
 export class AuthRepository {

@@ -1,4 +1,4 @@
-import { CafeteriaMenu } from '@prisma/client';
+import type { CafeteriaMenu } from '@prisma/client';
 import { prisma } from '../../config/database';
 import type { MenuItem } from './cafeteria.schema';
 

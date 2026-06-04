@@ -1,4 +1,5 @@
-import { Event, EventCategory } from '@prisma/client';
+import type { Event, EventCategory } from '@prisma/client';
+import type { ScrapedEvent } from './events.scraper';
 import { prisma } from '../../config/database';
 
 export class EventsRepository {
@@ -48,7 +49,7 @@ export class EventsRepository {
     return !!reg;
   }
 
-  async upsertScrapedEvents(events: import('./events.scraper').ScrapedEvent[]): Promise<number> {
+  async upsertScrapedEvents(events: ScrapedEvent[]): Promise<number> {
     let created = 0;
     for (const ev of events) {
       const existing = await prisma.event.findFirst({

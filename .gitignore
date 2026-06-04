@@ -12,3 +12,4 @@ Thumbs.db
 prisma/migrations/dev.db
 prisma/*.db
 prisma/*.db-journal
+CLAUDE.md
