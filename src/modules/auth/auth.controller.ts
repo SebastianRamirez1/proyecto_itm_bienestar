@@ -1,5 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { AuthService } from './auth.service';
+import type { JwtPayload } from '../../shared/types';
 import {
   RegisterSchema,
   LoginSchema,
@@ -32,6 +33,14 @@ export const authController = {
     const dto = RefreshSchema.parse(request.body);
     await service.logout(dto.refreshToken);
     return reply.status(204).send();
+  },
+
+  async getProfile(
+    request: FastifyRequest & { user: JwtPayload },
+    reply: FastifyReply,
+  ) {
+    const result = await service.getProfile(request.user.sub);
+    return reply.send({ success: true, data: result });
   },
 
   async createApiKey(
