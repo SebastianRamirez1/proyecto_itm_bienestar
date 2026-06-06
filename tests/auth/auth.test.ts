@@ -153,6 +153,47 @@ describe('POST /api/v1/auth/refresh', () => {
   });
 });
 
+describe('GET /api/v1/auth/profile', () => {
+  it('returns profile for authenticated user', async () => {
+    const reg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/register',
+      payload: ITM_USER,
+    });
+    const { accessToken } = reg.json().data;
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/auth/profile',
+      headers: { authorization: `Bearer ${accessToken}` },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.success).toBe(true);
+    expect(body.data.email).toBe(ITM_USER.email);
+    expect(body.data.role).toBe('student');
+    expect(body.data.id).toBeDefined();
+    expect(body.data).not.toHaveProperty('passwordHash');
+  });
+
+  it('returns 401 without token', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/auth/profile',
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('returns 401 with invalid token', async () => {
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/auth/profile',
+      headers: { authorization: 'Bearer not.a.valid.token' },
+    });
+    expect(res.statusCode).toBe(401);
+  });
+});
+
 describe('POST /api/v1/auth/api-key', () => {
   it('requires authentication', async () => {
     const res = await app.inject({

@@ -84,6 +84,32 @@ export async function authRoutes(app: FastifyInstance) {
     handler: authController.logout,
   });
 
+  app.get('/auth/profile', {
+    schema: {
+      tags: ['auth'],
+      summary: 'Get the authenticated user profile',
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            data: {
+              type: 'object',
+              properties: {
+                id:    { type: 'string' },
+                email: { type: 'string' },
+                role:  { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+    preHandler: requireAuth,
+    handler: authController.getProfile as never,
+  });
+
   app.post('/auth/api-key', {
     schema: {
       tags: ['auth'],

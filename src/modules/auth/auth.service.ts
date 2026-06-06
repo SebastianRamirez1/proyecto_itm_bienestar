@@ -73,6 +73,12 @@ export class AuthService {
     await this.repo.deleteRefreshToken(tokenHash);
   }
 
+  async getProfile(userId: string) {
+    const user = await this.repo.findUserById(userId);
+    if (!user) throw AppError.notFound('User not found');
+    return { id: user.id, email: user.email, role: user.role };
+  }
+
   async createApiKey(userId: string, dto: CreateApiKeyDto) {
     const rawKey = generateApiKey();
     const keyHash = createHash('sha256').update(rawKey).digest('hex');
